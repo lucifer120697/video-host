@@ -22,17 +22,36 @@
     <video id="videoPlayer" controls autoplay>
       Your browser does not support HTML5 video.
     </video>
+    
     <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const videoUrl = urlParams.get("url");
+  const urlParams = new URLSearchParams(window.location.search);
+  const videoUrl = urlParams.get("url");
 
-      if (videoUrl) {
-        document.getElementById("videoPlayer").src =
-          decodeURIComponent(videoUrl);
+  if (videoUrl) {
+    const videoElement = document.getElementById("videoPlayer");
+    videoElement.src = decodeURIComponent(videoUrl);
+
+    videoElement.addEventListener("fullscreenchange", async () => {
+      if (document.fullscreenElement) {
+        // Try to lock orientation to landscape on fullscreen
+        if (screen.orientation && screen.orientation.lock) {
+          try {
+            await screen.orientation.lock('landscape');
+          } catch (err) {
+            console.warn("Orientation lock failed:", err);
+          }
+        }
       } else {
-        document.body.innerHTML =
-          "<h3 style='color: white; text-align: center;'>Missing video URL</h3>";
+        // Unlock orientation when exiting fullscreen
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
       }
-    </script>
+    });
+  } else {
+    document.body.innerHTML = "<h3 style='color: white; text-align: center;'>Missing video URL</h3>";
+  }
+</script>
+
   </body>
 </html>
